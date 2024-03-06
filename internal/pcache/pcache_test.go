@@ -7,6 +7,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// Test_If_NewPredicate creates a new Predicate.
+func Test_If_NewPredicate(t *testing.T) {
+	called := false
+	p := NewPredicate(func() bool {
+		called = true
+		return true
+	})
+	assert.False(t, called, "f was called")
+	assert.True(t, p.f(), "f returned false")
+	assert.True(t, called, "f was not called")
+}
+
 // Test_If_Eval_Calls_F_When_Not_In_Cache tests that Eval calls the function
 // when the predicate is not in the cache. It also tests that the result is
 // cached.
@@ -150,4 +162,12 @@ func Test_If_Boolean_Works(t *testing.T) {
 			assert.Equal(t, tc.expectedCalledOr, called, "f was not called correctly")
 		})
 	}
+}
+
+// Test_If_Not_Returns_The_Negation_Of_The_Given_Predicate tests that Not returns
+// the negation of the given predicate.
+func Test_If_Not_Returns_The_Negation_Of_The_Given_Predicate(t *testing.T) {
+	c := New()
+	assert.False(t, c.Eval(c.Not(c.True())), "!true returned true")
+	assert.True(t, c.Eval(c.Not(c.False())), "!false returned false")
 }

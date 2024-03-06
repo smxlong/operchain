@@ -7,6 +7,11 @@ type Predicate struct {
 	f func() bool
 }
 
+// NewPredicate creates a new Predicate.
+func NewPredicate(f func() bool) *Predicate {
+	return &Predicate{f: f}
+}
+
 // Cache is a predicate value Cache.
 type Cache struct {
 	c    map[*Predicate]bool
@@ -53,6 +58,33 @@ func (c *Cache) Or(p ...*Predicate) *Predicate {
 					return true
 				}
 			}
+			return false
+		},
+	}
+}
+
+// Not returns the negation of the given Predicate.
+func (c *Cache) Not(p *Predicate) *Predicate {
+	return &Predicate{
+		f: func() bool {
+			return !c.Eval(p)
+		},
+	}
+}
+
+// True returns a Predicate that always returns true.
+func (c *Cache) True() *Predicate {
+	return &Predicate{
+		f: func() bool {
+			return true
+		},
+	}
+}
+
+// False returns a Predicate that always returns false.
+func (c *Cache) False() *Predicate {
+	return &Predicate{
+		f: func() bool {
 			return false
 		},
 	}
