@@ -36,6 +36,10 @@ test:
 clean:
 	rm -f coverage.txt
 
+.PHONY: print-version
+print-version:
+	@grep 'const Version' version.go | sed -E 's/.*"(.+)"$$/\1/'
+
 .git/hooks/pre-commit: .git/hooks dev/hooks/pre-commit
 	cp dev/hooks/pre-commit .git/hooks/pre-commit
 
