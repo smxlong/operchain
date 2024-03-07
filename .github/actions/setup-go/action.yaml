@@ -1,0 +1,22 @@
+name: setup-go
+
+description: Set up Go
+
+inputs:
+  go-version:
+    description: The Go version to download and use
+    required: false
+    default: 1.22.0
+  cache:
+    description: Whether to use the Go cache
+    required: false
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+  - name: Set up Go
+    uses: actions/setup-go@v5
+    with:
+      go-version: ${{ inputs.go-version }}
+      cache: ${{ inputs.cache }}
