@@ -6,7 +6,7 @@ inputs:
   go-version:
     description: The Go version to download and use
     required: false
-    default: 1.22.0
+    default: 1.21.6
   cache:
     description: Whether to use the Go cache
     required: false
