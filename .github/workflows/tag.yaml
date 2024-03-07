@@ -33,7 +33,7 @@ jobs:
     - name: Create tag
       if: github.ref_name == 'main'
       run: |
-        git config --local url."https://smxlong:${{ secrets.PUBLISH_TOKEN }}@${{ github.repository }}".insteadOf "https://${{ github.repository }}"
+        git config --local url."https://smxlong:${{ secrets.PUBLISH_TOKEN }}@github.com/${{ github.repository }}".insteadOf "https://github.com/${{ github.repository }}"
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
         git config --global user.name "${{ github.actor }}"
         git tag "v${{ steps.version.outputs.version }}"
