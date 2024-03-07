@@ -4,6 +4,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+  pull-requests: write
+
 on:
   push:
     branches:
@@ -33,8 +37,5 @@ jobs:
     - name: Create tag
       if: github.ref_name == 'main'
       run: |
-        git config --local url."https://smxlong:${{ secrets.PUBLISH_TOKEN }}@github.com/${{ github.repository }}.git".insteadOf "https://github.com/${{ github.repository }}.git"
-        git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-        git config --global user.name "${{ github.actor }}"
         git tag "v${{ steps.version.outputs.version }}"
         git push origin "v${{ steps.version.outputs.version }}"
