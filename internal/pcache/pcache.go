@@ -4,12 +4,16 @@ import "sync"
 
 // Predicate represents a cacheable boolean function.
 type Predicate struct {
-	f func() bool
+	f func(c *Cache) bool
 }
 
 // NewPredicate creates a new Predicate.
 func NewPredicate(f func() bool) *Predicate {
-	return &Predicate{f: f}
+	return &Predicate{
+		f: func(c *Cache) bool {
+			return f()
+		},
+	}
 }
 
 // Cache is a predicate value Cache.
@@ -26,21 +30,21 @@ func New() *Cache {
 }
 
 // Eval evaluates the predicate in the cache.
-func (c *Cache) Eval(p *Predicate) bool {
+func (p *Predicate) Eval(c *Cache) bool {
 	if val, ok := c.isInCache(p); ok {
 		return val
 	}
-	val := p.f()
+	val := p.f(c)
 	c.addToCache(p, val)
 	return val
 }
 
 // And returns a new Predicate that is the logical AND of the given Predicates.
-func (c *Cache) And(p ...*Predicate) *Predicate {
+func And(p ...*Predicate) *Predicate {
 	return &Predicate{
-		f: func() bool {
-			for _, pred := range p {
-				if !c.Eval(pred) {
+		f: func(c *Cache) bool {
+			for _, expr := range p {
+				if !expr.Eval(c) {
 					return false
 				}
 			}
@@ -50,11 +54,11 @@ func (c *Cache) And(p ...*Predicate) *Predicate {
 }
 
 // Or returns a new Predicate that is the logical OR of the given Predicates.
-func (c *Cache) Or(p ...*Predicate) *Predicate {
+func Or(p ...*Predicate) *Predicate {
 	return &Predicate{
-		f: func() bool {
-			for _, pred := range p {
-				if c.Eval(pred) {
+		f: func(c *Cache) bool {
+			for _, expr := range p {
+				if expr.Eval(c) {
 					return true
 				}
 			}
@@ -64,27 +68,27 @@ func (c *Cache) Or(p ...*Predicate) *Predicate {
 }
 
 // Not returns the negation of the given Predicate.
-func (c *Cache) Not(p *Predicate) *Predicate {
+func Not(p *Predicate) *Predicate {
 	return &Predicate{
-		f: func() bool {
-			return !c.Eval(p)
+		f: func(c *Cache) bool {
+			return !p.Eval(c)
 		},
 	}
 }
 
 // True returns a Predicate that always returns true.
-func (c *Cache) True() *Predicate {
+func True() *Predicate {
 	return &Predicate{
-		f: func() bool {
+		f: func(*Cache) bool {
 			return true
 		},
 	}
 }
 
 // False returns a Predicate that always returns false.
-func (c *Cache) False() *Predicate {
+func False() *Predicate {
 	return &Predicate{
-		f: func() bool {
+		f: func(*Cache) bool {
 			return false
 		},
 	}

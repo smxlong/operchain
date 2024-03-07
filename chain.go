@@ -51,6 +51,21 @@ func Predicate(f func() bool) *predicate {
 	return pcache.NewPredicate(f)
 }
 
+// And returns a new Predicate that is the logical AND of the given Predicates.
+var And = pcache.And
+
+// Or returns a new Predicate that is the logical OR of the given Predicates.
+var Or = pcache.Or
+
+// Not returns a new Predicate that is the logical NOT of the given Predicate.
+var Not = pcache.Not
+
+// True returns a Predicate that always returns true.
+var True = pcache.True
+
+// False returns a Predicate that always returns false.
+var False = pcache.False
+
 // Run runs an operchain.
 func (c *Chain) Run(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	c.stop = false
@@ -61,7 +76,7 @@ func (c *Chain) Run(ctx context.Context, req ctrl.Request) (ctrl.Result, error) 
 		return ctrl.Result{}, err
 	}
 	for _, rule := range c.Rules {
-		if rule.When == nil || c.cache.Eval(rule.When) {
+		if rule.When == nil || rule.When.Eval(c.cache) {
 			rule.Do(ctx)
 			if c.stop || c.err != nil {
 				return ctrl.Result{Requeue: true, RequeueAfter: c.interval}, c.err

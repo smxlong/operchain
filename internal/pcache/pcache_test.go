@@ -14,8 +14,9 @@ func Test_If_NewPredicate(t *testing.T) {
 		called = true
 		return true
 	})
+	c := New()
 	assert.False(t, called, "f was called")
-	assert.True(t, p.f(), "f returned false")
+	assert.True(t, p.f(c), "f returned false")
 	assert.True(t, called, "f was not called")
 }
 
@@ -26,12 +27,12 @@ func Test_If_Eval_Calls_F_When_Not_In_Cache(t *testing.T) {
 	c := New()
 	called := false
 	p := &Predicate{
-		f: func() bool {
+		f: func(*Cache) bool {
 			called = true
 			return true
 		},
 	}
-	assert.True(t, c.Eval(p), "Eval returned false")
+	assert.True(t, p.Eval(c), "Eval returned false")
 	assert.True(t, called, "f was not called")
 	_, ok := c.isInCache(p)
 	assert.True(t, ok, "predicate was not cached")
@@ -41,19 +42,15 @@ func Test_If_Eval_Calls_F_When_Not_In_Cache(t *testing.T) {
 // function when the predicate is in the cache.
 func Test_If_Eval_Does_Not_Call_F_When_In_Cache(t *testing.T) {
 	c := New()
-	trueFunc := func() bool {
-		return true
-	}
+	called := false
 	p := &Predicate{
-		f: trueFunc,
+		f: func(*Cache) bool {
+			called = true
+			return true
+		},
 	}
 	c.addToCache(p, true)
-	called := false
-	p.f = func() bool {
-		called = true
-		return true
-	}
-	assert.True(t, c.Eval(p), "Eval returned false")
+	assert.True(t, p.Eval(c), "Eval returned false")
 	assert.False(t, called, "f was called")
 }
 
@@ -134,14 +131,14 @@ func Test_If_Boolean_Works(t *testing.T) {
 			for i := range p {
 				i := i
 				p[i] = &Predicate{
-					f: func() bool {
+					f: func(*Cache) bool {
 						called[i] = true
 						return tc.input[i]
 					},
 				}
 			}
-			and := c.And(p[0], p[1], p[2])
-			assert.Equal(t, tc.expectedOutputAnd, c.Eval(and), "Eval returned wrong value")
+			and := And(p[0], p[1], p[2])
+			assert.Equal(t, tc.expectedOutputAnd, and.Eval(c), "Eval returned wrong value")
 			assert.Equal(t, tc.expectedCalledAnd, called, "f was not called correctly")
 		})
 		t.Run(fmt.Sprintf("OR %v-%v-%v", tc.input[0], tc.input[1], tc.input[2]), func(t *testing.T) {
@@ -151,14 +148,14 @@ func Test_If_Boolean_Works(t *testing.T) {
 			for i := range p {
 				i := i
 				p[i] = &Predicate{
-					f: func() bool {
+					f: func(*Cache) bool {
 						called[i] = true
 						return tc.input[i]
 					},
 				}
 			}
-			or := c.Or(p[0], p[1], p[2])
-			assert.Equal(t, tc.expectedOutputOr, c.Eval(or), "Eval returned wrong value")
+			or := Or(p[0], p[1], p[2])
+			assert.Equal(t, tc.expectedOutputOr, or.Eval(c), "Eval returned wrong value")
 			assert.Equal(t, tc.expectedCalledOr, called, "f was not called correctly")
 		})
 	}
@@ -168,6 +165,6 @@ func Test_If_Boolean_Works(t *testing.T) {
 // the negation of the given predicate.
 func Test_If_Not_Returns_The_Negation_Of_The_Given_Predicate(t *testing.T) {
 	c := New()
-	assert.False(t, c.Eval(c.Not(c.True())), "!true returned true")
-	assert.True(t, c.Eval(c.Not(c.False())), "!false returned false")
+	assert.False(t, Not(True()).Eval(c), "Not(True()) returned true")
+	assert.True(t, Not(False()).Eval(c), "Not(False()) returned false")
 }

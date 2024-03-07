@@ -2,7 +2,10 @@ module github.com/smxlong/operchain
 
 go 1.21.5
 
-require github.com/stretchr/testify v1.9.0
+require (
+	github.com/stretchr/testify v1.9.0
+	k8s.io/apimachinery v0.29.0
+)
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -49,7 +52,6 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	k8s.io/api v0.29.0 // indirect
 	k8s.io/apiextensions-apiserver v0.29.0 // indirect
-	k8s.io/apimachinery v0.29.0 // indirect
 	k8s.io/client-go v0.29.0 // indirect
 	k8s.io/component-base v0.29.0 // indirect
 	k8s.io/klog/v2 v2.110.1 // indirect
