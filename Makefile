@@ -1,5 +1,5 @@
 .PHONY: check
-check: generate tidy fmt vet lint test
+check: .git/hooks/pre-commit generate tidy fmt vet lint test
 
 .PHONY: ci-check
 ci-check: check
@@ -29,6 +29,8 @@ lint:
 test:
 	go test -coverprofile=coverage.txt -covermode=atomic -v ./...
 
-.PHONY: dev-setup
-dev-setup:
+.git/hooks/pre-commit: .git/hooks dev/hooks/pre-commit
 	cp dev/hooks/pre-commit .git/hooks/pre-commit
+
+.git/hooks:
+	mkdir -p .git/hooks
